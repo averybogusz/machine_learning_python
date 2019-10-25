@@ -6,14 +6,14 @@ def accuracy(y,y_hat):
     return np.mean( y== y_hat)
 
 class NaiveBayesClassifier():
-    def fit(self, X, y):
+    def fit(self, X, y, naive=0):
         self.likelihoods =dict()
         self.priors = dict()
         self.K = set(y)
 
         for k in self.K:
             X_k  = X[y==k]
-            self.likelihoods[k] = {"mu" : X_k.mean(axis = 0), "SIGMA": np.cov(X_k.T)}
+            self.likelihoods[k] = {"mu" : X_k.mean(axis = 0), "SIGMA": (1 - naive) * np.cov(X_k.T) + naive * np.diag(np.diag(np.cov(X_k.T)))} #note the Naive indicator will simply tell python whether to grab the covariance matrix, or its diagonal
             self.priors[k] = len(X_k)/len(X)
         pass
 
@@ -49,7 +49,7 @@ def main():
     plt.scatter(X[:,0], X[:,1], c = y, alpha = .5)
 
     nb = NaiveBayesClassifier()
-    nb.fit(X,y)
+    nb.fit(X,y, naive=0)
     y_hat = nb.predict(X)
     print(f"Training accuracy: {accuracy(y, y_hat):0.4f}")
     pass
